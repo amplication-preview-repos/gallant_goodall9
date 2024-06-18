@@ -1,0 +1,58 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model LoanStatus {
+  createdAt   DateTime @default(now())
+  description String?
+  id          String   @id @default(cuid())
+  statusName  String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Loan {
+  amount               Float?
+  createdAt            DateTime                      @default(now())
+  dueDate              DateTime?
+  id                   String                        @id @default(cuid())
+  installmentAmount    Float?
+  installmentFrequency EnumLoanInstallmentFrequency?
+  issuedDate           DateTime?
+  payments             Payment[]
+  status               String?
+  updatedAt            DateTime                      @updatedAt
+  user                 User?                         @relation(fields: [userId], references: [id])
+  userId               String?
+}
+
+model Payment {
+  amount      Float?
+  createdAt   DateTime  @default(now())
+  id          String    @id @default(cuid())
+  loan        Loan?     @relation(fields: [loanId], references: [id])
+  loanId      String?
+  paymentDate DateTime?
+  updatedAt   DateTime  @updatedAt
+}
+
+model User {
+  createdAt DateTime @default(now())
+  email     String?  @unique
+  firstName String?
+  id        String   @id @default(cuid())
+  lastName  String?
+  loans     Loan[]
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
+enum EnumLoanInstallmentFrequency {
+  Option1
+}
